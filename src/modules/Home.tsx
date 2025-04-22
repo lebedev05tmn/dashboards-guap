@@ -1,11 +1,107 @@
-import { Layout, Card, Row, Col, Typography } from 'antd';
-import { AppstoreOutlined, BarChartOutlined, CalendarOutlined } from '@ant-design/icons';
-import { FC } from 'react';
+import { Layout, Card, Row, Col, Typography, List, Space, Tag } from 'antd';
+import {
+    AppstoreOutlined,
+    BarChartOutlined,
+    CalendarOutlined,
+    CheckCircleOutlined,
+    CommentOutlined,
+    FileAddOutlined,
+} from '@ant-design/icons';
+import { FC, useEffect, useRef } from 'react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, ChartTypeRegistry } from 'chart.js';
+import { Doughnut } from 'react-chartjs-2';
 
 const { Title, Text } = Typography;
 const { Content, Footer } = Layout;
 
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const activityData = [
+    {
+        id: 1,
+        user: 'Иван Петров',
+        action: 'завершил задачу',
+        target: 'Проект Альфа',
+        time: '10 минут назад',
+        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+        type: 'success',
+    },
+    {
+        id: 2,
+        user: 'Анна Сидорова',
+        action: 'добавила новый документ',
+        target: 'Техническое задание',
+        time: '1 час назад',
+        icon: <FileAddOutlined style={{ color: '#1890ff' }} />,
+        type: 'info',
+    },
+    {
+        id: 3,
+        user: 'Сергей Иванов',
+        action: 'добавил нового участника',
+        target: 'Максим Кузнецов',
+        time: '2 часа назад',
+        icon: <FileAddOutlined style={{ color: '#722ed1' }} />,
+        type: 'team',
+    },
+    {
+        id: 4,
+        user: 'Елена Смирнова',
+        action: 'оставила комментарий',
+        target: 'Дизайн макеты',
+        time: '5 часов назад',
+        icon: <CommentOutlined style={{ color: '#faad14' }} />,
+        type: 'comment',
+    },
+    {
+        id: 5,
+        user: 'Дмитрий Васильев',
+        action: 'завершил задачу',
+        target: 'Интеграция API',
+        time: 'вчера',
+        icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+        type: 'success',
+    },
+];
+
 const Home: FC = () => {
+    const chartRef = useRef<ChartJS<keyof ChartTypeRegistry, number[], string> | null>(null);
+
+    const data = {
+        labels: ['Завершено', 'В работе', 'На паузе'],
+        datasets: [
+            {
+                data: [65, 25, 10],
+                backgroundColor: ['#36A2EB', '#FFCE56', '#FF6384'],
+                borderWidth: 1,
+            },
+        ],
+    };
+
+    const getTagColor = (type: string) => {
+        switch (type) {
+            case 'success':
+                return 'green';
+            case 'info':
+                return 'blue';
+            case 'team':
+                return 'purple';
+            case 'comment':
+                return 'gold';
+            default:
+                return 'blue';
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            if (chartRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                chartRef.current.destroy();
+            }
+        };
+    }, []);
+
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Content style={{ margin: '24px 16px 0' }}>
@@ -16,19 +112,7 @@ const Home: FC = () => {
                                 <BarChartOutlined /> Статистика
                             </Title>
                             <Text>Ваша эффективность за месяц</Text>
-                            <div
-                                style={{
-                                    height: 200,
-                                    background: '#f0f2f5',
-                                    marginTop: 16,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#888',
-                                }}
-                            >
-                                График статистики
-                            </div>
+                            <Doughnut data={data} />
                         </Card>
                     </Col>
                     <Col xs={24} sm={12} md={8}>
@@ -69,23 +153,39 @@ const Home: FC = () => {
                     </Col>
                 </Row>
 
-                {/* Дополнительный контент */}
                 <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
                     <Col span={24}>
                         <Card>
                             <Title level={5}>Последняя активность</Title>
-                            <div
-                                style={{
-                                    height: 300,
-                                    background: '#f0f2f5',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#888',
-                                }}
-                            >
-                                Лента активности
-                            </div>
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={activityData}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        <List.Item.Meta
+                                            avatar={item.icon}
+                                            title={
+                                                <Space>
+                                                    <Text strong>{item.user}</Text>
+                                                    <Text>{item.action}</Text>
+                                                    <Text strong>{item.target}</Text>
+                                                </Space>
+                                            }
+                                            description={
+                                                <Space>
+                                                    <Tag color={getTagColor(item.type)}>
+                                                        {item.type === 'success' && 'Задача'}
+                                                        {item.type === 'info' && 'Документ'}
+                                                        {item.type === 'team' && 'Команда'}
+                                                        {item.type === 'comment' && 'Комментарий'}
+                                                    </Tag>
+                                                    <Text type="secondary">{item.time}</Text>
+                                                </Space>
+                                            }
+                                        />
+                                    </List.Item>
+                                )}
+                            />
                         </Card>
                     </Col>
                 </Row>
