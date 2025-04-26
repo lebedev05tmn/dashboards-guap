@@ -9,6 +9,20 @@ ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend,
 
 const { Title: AntTitle, Text } = Typography;
 
+type ColumnTitlesType = {
+    [key in keyof JoggingData]: string;
+};
+
+const columnTitles: ColumnTitlesType = {
+    date: 'Дата',
+    startTime: 'Время начала',
+    duration: 'Длительность (мин)',
+    distance: 'Расстояние (км)',
+    maxSpeed: 'Макс. скорость (км/ч)',
+    minSpeed: 'Мин. скорость (км/ч)',
+    avgSpeed: 'Сред. скорость (км/ч)',
+    avgPulse: 'Сред. пульс',
+};
 type JoggingData = {
     date: string;
     startTime: string;
@@ -103,14 +117,12 @@ const Jogging: React.FC = () => {
         <div>
             <AntTitle level={2} style={{ marginBottom: '24px' }}>Данные о пробежках</AntTitle>
             <Table dataSource={data} pagination={{ pageSize: 10 }}>
-                <Table.Column title="Дата" dataIndex="date" />
-                <Table.Column title="Время начала " dataIndex="startTime" />
-                <Table.Column title="Длительность (мин)" dataIndex="duration" />
-                <Table.Column title="Расстояние (км)" dataIndex="distance" />
-                <Table.Column title="Макс. скорость (км/ч)" dataIndex="maxSpeed" />
-                <Table.Column title="Мин. скорость (км/ч)" dataIndex="minSpeed" />
-                <Table.Column title="Сред. скорость (км/ч)" dataIndex="avgSpeed" />
-                <Table.Column title="Сред. пульс" dataIndex="avgPulse" />
+                {Object.keys(columnTitles).map((key) => (
+                    <Table.Column 
+                        title={columnTitles[key as keyof ColumnTitlesType]} 
+                        dataIndex={key as keyof JoggingData}
+                        key={key}/>
+                ))}
             </Table>
 
             <AntTitle level={3} style={{ marginBottom: '24px' }}>Графики пробежек</AntTitle>
