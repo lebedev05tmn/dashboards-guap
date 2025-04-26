@@ -1,77 +1,302 @@
 [
     {
-        "year": 2023,
-        "inflationRate": 7.4,
-        "comment": "Инфляция снизилась после шока 2022 года"
+        "date": "2025-04-01",
+        "startTime": "07:00",
+        "duration": 30,
+        "distance": 5,
+        "maxSpeed": 12,
+        "minSpeed": 8,
+        "avgSpeed": 10,
+        "avgPulse": 140
     },
     {
-        "year": 2022,
-        "inflationRate": 11.9,
-        "comment": "Рекордная инфляция из-за санкций и геополитики"
+        "date": "2025-04-02",
+        "startTime": "07:15",
+        "duration": 45,
+        "distance": 7,
+        "maxSpeed": 13,
+        "minSpeed": 9,
+        "avgSpeed": 11,
+        "avgPulse": 145
     },
     {
-        "year": 2021,
-        "inflationRate": 8.4,
-        "comment": "Рост инфляции на фоне постковидного восстановления"
+        "date": "2025-04-03",
+        "startTime": "07:30",
+        "duration": 40,
+        "distance": 6,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 150
     },
     {
-        "year": 2020,
-        "inflationRate": 4.9,
-        "comment": "Пандемия COVID-19, снижение потребительского спроса"
+        "date": "2025-04-04",
+        "startTime": "07:45",
+        "duration": 35,
+        "distance": 5.5,
+        "maxSpeed": 13,
+        "minSpeed": 9,
+        "avgSpeed": 11,
+        "avgPulse": 148
     },
     {
-        "year": 2019,
-        "inflationRate": 3.0,
-        "comment": "Один из самых низких показателей в истории"
+        "date": "2025-04-05",
+        "startTime": "08:00",
+        "duration": 50,
+        "distance": 8,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 155
     },
     {
-        "year": 2018,
-        "inflationRate": 4.3,
-        "comment": "Повышение НДС в конце года"
+        "date": "2025-04-06",
+        "startTime": "08:15",
+        "duration": 30,
+        "distance": 4,
+        "maxSpeed": 11,
+        "minSpeed": 7,
+        "avgSpeed": 9,
+        "avgPulse": 135
     },
     {
-        "year": 2017,
-        "inflationRate": 2.5,
-        "comment": "Исторический минимум инфляции"
+        "date": "2025-04-07",
+        "startTime": "08:30",
+        "duration": 60,
+        "distance": 10,
+        "maxSpeed": 16,
+        "minSpeed": 12,
+        "avgSpeed": 14,
+        "avgPulse": 160
     },
     {
-        "year": 2016,
-        "inflationRate": 5.4,
-        "comment": "Замедление инфляции после кризиса 2014-2015"
+        "date": "2025-04-08",
+        "startTime": "08:45",
+        "duration": 55,
+        "distance": 9,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 158
     },
     {
-        "year": 2015,
-        "inflationRate": 12.9,
-        "comment": "Эффект девальвации рубля"
+        "date": "2025-04-09",
+        "startTime": "09:00",
+        "duration": 45,
+        "distance": 7.5,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 152
     },
     {
-        "year": 2014,
-        "inflationRate": 11.4,
-        "comment": "Кризис после введения санкций и падения цен на нефть"
+        "date": "2025-04-10",
+        "startTime": "09:15",
+        "duration": 50,
+        "distance": 8.5,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 156
     },
     {
-        "year": 2013,
-        "inflationRate": 6.5,
-        "comment": "Стабильный период"
+        "date": "2025-04-11",
+        "startTime": "09:30",
+        "duration": 40,
+        "distance": 6.5,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 150
     },
     {
-        "year": 2012,
-        "inflationRate": 6.6,
-        "comment": "Незначительный рост"
+        "date": "2025-04-12",
+        "startTime": "09:45",
+        "duration": 35,
+        "distance": 5,
+        "maxSpeed": 13,
+        "minSpeed": 9,
+        "avgSpeed": 11,
+        "avgPulse": 145
     },
     {
-        "year": 2011,
-        "inflationRate": 6.1,
-        "comment": "Умеренная инфляция"
+        "date": "2025-04-13",
+        "startTime": "10:00",
+        "duration": 30,
+        "distance": 4.5,
+        "maxSpeed": 12,
+        "minSpeed": 8,
+        "avgSpeed": 10,
+        "avgPulse": 140
     },
     {
-        "year": 2010,
-        "inflationRate": 8.8,
-        "comment": "Послекризисное восстановление"
+        "date": "2025-04-14",
+        "startTime": "10:15",
+        "duration" : 55,
+        "distance": 9.5,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 157
     },
     {
-        "year": 2009,
-        "inflationRate": 8.8,
-        "comment": "Мировой финансовый кризис"
+        "date": "2025-04-15",
+        "startTime": "10:30",
+        "duration": 60,
+        "distance": 10.5,
+        "maxSpeed": 16,
+        "minSpeed": 12,
+        "avgSpeed": 14,
+        "avgPulse": 162
+    },
+    {
+        "date": "2025-04-16",
+        "startTime": "10:45",
+        "duration": 45,
+        "distance": 7.8,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 155
+    },
+    {
+        "date": "2025-04-17",
+        "startTime": "11:00",
+        "duration": 50,
+        "distance": 8.2,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 158
+    },
+    {
+        "date": "2025-04-18",
+        "startTime": "11:15",
+        "duration": 30,
+        "distance": 5.2,
+        "maxSpeed": 12,
+        "minSpeed": 8,
+        "avgSpeed": 10,
+        "avgPulse": 142
+    },
+    {
+        "date": "2025-04-19",
+        "startTime": "11:30",
+        "duration": 40,
+        "distance": 6.8,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 150
+    },
+    {
+        "date": "2025-04-20",
+        "startTime": "11:45",
+        "duration": 55,
+        "distance": 9.1,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 156
+    },
+    {
+        "date": "2025-04-21",
+        "startTime": "12:00",
+        "duration": 60,
+        "distance": 10.2,
+        "maxSpeed": 16,
+        "minSpeed": 12,
+        "avgSpeed": 14,
+        "avgPulse": 161
+    },
+    {
+        "date": "2025-04-22",
+        "startTime": "12:15",
+        "duration": 30,
+        "distance": 4.8,
+        "maxSpeed": 11,
+        "minSpeed": 7,
+        "avgSpeed": 9,
+        "avgPulse": 138
+    },
+    {
+        "date": "2025-04-23",
+        "startTime": "12:30",
+        "duration": 45,
+        "distance": 7.3,
+        "maxSpeed": 13,
+        "minSpeed": 9,
+        "avgSpeed": 11,
+        "avgPulse": 144
+    },
+    {
+        "date": "2025-04-24",
+        "startTime": "12:45",
+        "duration": 50,
+        "distance": 8.7,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 157
+    },
+    {
+        "date": "2025-04-25",
+        "startTime": "13:00",
+        "duration": 40,
+        "distance": 6.2,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 152
+    },
+    {
+        "date": "2025-04-26",
+        "startTime": "13:15",
+        "duration": 35,
+        "distance": 5.4,
+        "maxSpeed": 13,
+        "minSpeed": 9,
+        "avgSpeed": 11,
+        "avgPulse": 146
+    },
+    {
+        "date": "2025-04-27",
+        "startTime": "13:30",
+        "duration": 30,
+        "distance": 4.6,
+        "maxSpeed": 12,
+        "minSpeed": 8,
+        "avgSpeed": 10,
+        "avgPulse": 140
+    },
+    {
+        "date": "2025-04-28",
+        "startTime": "13:45",
+        "duration": 60,
+        "distance": 10,
+        "maxSpeed": 16,
+        "minSpeed": 12,
+        "avgSpeed": 14,
+        "avgPulse": 159
+    },
+    {
+        "date": "2025-04-29",
+        "startTime": "14:00",
+        "duration": 50,
+        "distance": 9,
+        "maxSpeed": 15,
+        "minSpeed": 11,
+        "avgSpeed": 13,
+        "avgPulse": 155
+    },
+    {
+        "date": "2025-04-30",
+        "startTime": "14:15",
+        "duration": 45,
+        "distance": 7.5,
+        "maxSpeed": 14,
+        "minSpeed": 10,
+        "avgSpeed": 12,
+        "avgPulse": 150
     }
 ]
