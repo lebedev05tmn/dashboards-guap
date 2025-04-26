@@ -3,6 +3,7 @@ import originalData from '../../config/jogging.json';
 import { Table } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale } from 'chart.js';
+import Forecast from './Forecast';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale);
 
@@ -82,7 +83,7 @@ const Jogging: React.FC = () => {
         const { forecast, labels } = generateForecast(processedData.map(item => item.distance), windowSize, forecastDays);
         setForecastData(forecast);
         setForecastLabels(labels);
-    }, []);
+    }, [windowSize, forecastDays]);
 
     const processData = (data: JoggingData[]): JoggingData[] => {
         return data.map(item => ({
@@ -95,22 +96,21 @@ const Jogging: React.FC = () => {
         const labels = data.map(item => item.date);
         const distances = data.map(item => item.distance);
         const allLabels = [...labels, ...forecastLabels];
-        const allDistances = [...distances, ...forecastData];
 
         return {
             labels: allLabels,
             datasets: [
                 {
                     label: 'Расстояние (км)',
-                    data: distances,
+                    data : distances,
                     borderColor: 'rgba(75, 192, 192, 1)',
                     backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     fill: true,
                 },
- {
+                {
                     label: 'Прогноз (км)',
                     data: forecastData,
-                    borderColor: 'rgba(255, 99, 132, 1)', // Другой цвет для прогноза
+                    borderColor: 'rgba(255, 99, 132, 1)',
                     backgroundColor: 'rgba(255, 99, 132, 0.2)',
                     fill: true,
                 }
@@ -127,7 +127,7 @@ const Jogging: React.FC = () => {
     const calculateWeekendDistance = (data: JoggingData[]): number => {
         return data.reduce((total, item) => {
             const date = new Date(item.date);
-            const day = date.getDay(); // 0 - воскресенье, 6 - суббота
+            const day = date.getDay();
             if (day === 0 || day === 6) {
                 return total + item.distance;
             }
@@ -160,8 +160,7 @@ const Jogging: React.FC = () => {
                     {speedChartData ? <Line data={speedChartData} /> : <p>Загрузка данных для графика скорости...</p>}
                 </div>
             </div>
-            <h2 style={{ marginTop: '24px' }}>Прогноз на следующие {forecastDays} дней</h2>
-            <p>{`Прогнозируемое расстояние: ${forecastData.join(', ')} км`}</p>
+            <Forecast data={data} />
         </div>
     );
 };
