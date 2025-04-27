@@ -11,6 +11,7 @@ import {
   Tooltip, 
   Legend 
 } from 'chart.js';
+import birthData from '../../config/birt-statistics.json';
 
 ChartJS.register(
   CategoryScale,
@@ -31,31 +32,14 @@ interface DataItem {
   isForecast?: boolean;
 }
 
-const mockData: DataItem[] = [
-  { year: 2010, percentage: 24.5 },
-  { year: 2011, percentage: 25.8 },
-  { year: 2012, percentage: 26.3 },
-  { year: 2013, percentage: 27.1 },
-  { year: 2014, percentage: 27.8 },
-  { year: 2015, percentage: 28.5 },
-  { year: 2016, percentage: 29.2 },
-  { year: 2017, percentage: 30.0 },
-  { year: 2018, percentage: 30.8 },
-  { year: 2019, percentage: 31.5 },
-  { year: 2020, percentage: 32.3 },
-  { year: 2021, percentage: 33.1 },
-  { year: 2022, percentage: 33.9 },
-  { year: 2023, percentage: 34.7 },
-  { year: 2024, percentage: 35.5 }
-];
-
 const BirthStatistics: React.FC = () => {
   const [forecastYears, setForecastYears] = useState<number>(3);
 
   const dataWithChanges = useMemo(() => {
-    return mockData.map((item, index) => ({
+    return birthData.map((item, index) => ({
       ...item,
-      change: index > 0 ? Number((item.percentage - mockData[index - 1].percentage).toFixed(1)) : 0,
+      change: index > 0 ? Number((item.percentage - birthData[index - 1].percentage).toFixed(1)) : 0,
+      isForecast: false
     }));
   }, []);
 
