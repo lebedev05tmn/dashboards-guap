@@ -17,7 +17,7 @@ export enum Routes {
 export enum RouteNames {
     Home = 'Главная',
     Inflation = 'Инфляция',
-    BirthStats  = 'Статистика Рождаемости',
+    BirthStats  = 'Рождаемость',
 }
 
 export const RoutesConfig = {
