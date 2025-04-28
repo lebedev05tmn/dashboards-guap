@@ -114,7 +114,7 @@ const Jogging: React.FC = () => {
 
 
     return (
-        <div>
+        <div style={{padding: '24px'}}>
             <AntTitle level={2} style={{ marginBottom: '24px' }}>Данные о пробежках</AntTitle>
             <Table dataSource={data} pagination={{ pageSize: 10 }}>
                 {Object.keys(columnTitles).map((key) => (
@@ -137,7 +137,7 @@ const Jogging: React.FC = () => {
 
             <AntTitle level={3} style={{ marginBottom: '12px' }}>Сумма пройденных километров за выходные дни</AntTitle>
             <Text style={{ marginBottom: '24px' }}>{`Общая сумма: ${totalWeekendDistance} км`}</Text>
-            <Forecast data={data} />
+            <Forecast/>
         </div>
     );
 };

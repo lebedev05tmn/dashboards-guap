@@ -1,66 +1,140 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import { Card, Statistic, Select, Typography, Alert } from 'antd';
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
+import joggingData from '../../config/jogging.json';
 
-type JoggingData = {
-    date: string; // Дата пробежки
-    distance: number; // Расстояние пробежки
-};
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
-type ForecastProps = {
-    data: JoggingData[]; // Данные о пробежках
-};
+const { Title: AntTitle, Text } = Typography;
 
-// Функция для вычисления скользящей средней
-const calculateMovingAverage = (data: number[], windowSize: number): number[] => {
-    const movingAverages: number[] = [];
-    for (let i = 0; i <= data.length - windowSize; i++) {
-        const window = data.slice(i, i + windowSize);
-        const average = window.reduce((sum, value) => sum + value, 0) / windowSize;
-        movingAverages.push(average);
-    }
-    return movingAverages;
-};
+const DAYS_FOR_FORECAST = 7;
+const RANDOM_CHANGE_PERCENTAGE = 0.1;
 
-// Компонент Forecast
-const Forecast: React.FC<ForecastProps> = ({ data }) => {
-    const [forecastData, setForecastData] = useState<{ date: string; forecast: number }[]>([]);
+interface JoggingData {
+    date: string;
+    startTime: string;
+    duration: number;
+    distance: number;
+    maxSpeed: number;
+    minSpeed: number;
+    avgSpeed: number;
+    avgPulse: number;
+}
 
-    useEffect(() => {
-        const distances = data.map(item => item.distance);
-        const windowSize = 3; // Размер окна для скользящей средней
-        const movingAverages = calculateMovingAverage(distances, windowSize);
-        
-        // Проверяем, есть ли данные для прогнозирования
-        if (movingAverages.length === 0) {
-            return; // Если нет данных, выходим из useEffect
-        }
+interface ProcessedData extends JoggingData {
+    isForecast?: boolean;
+}
 
-        const lastAverage = movingAverages[movingAverages.length - 1]; // Последнее значение скользящей средней
+const Forecast: React.FC = () => {
+    const [forecastDays, setForecastDays] = useState<number>(DAYS_FOR_FORECAST);
 
-        // Генерируем прогноз на 5 будущих дней
-        const today = new Date();
-        const newForecastData = [];
-        for (let i = 1; i <= 5; i++) {
-            const forecastDate = new Date(today);
-            forecastDate.setDate(today.getDate() + i);
-            newForecastData.push({
-                date: forecastDate.toISOString().split('T')[0], // Форматируем дату в строку
-                forecast: lastAverage // Используем последнее значение скользящей средней как прогноз
-            });
-        }
+    const processHistoricalData = (data: JoggingData[]): ProcessedData[] => {
+        return data.map((item) => ({
+            ...item,
+            isForecast: false
+        }));
+    };
 
-        setForecastData(newForecastData);
-    }, [data]);
+    const calculateForecastDistance = (avgDistance: number, minDistance: number, maxDistance: number): number => {
+        const randomFactor = (Math.random() * (RANDOM_CHANGE_PERCENTAGE * 7) - RANDOM_CHANGE_PERCENTAGE * 3) * avgDistance;
+        return Math.max(minDistance, Math.min(maxDistance, avgDistance + randomFactor));
+    };
+
+    const generateForecast = (data: ProcessedData[], days: number): ProcessedData[] => {
+        const lastDistances = data.slice(-30).map(item => item.distance);
+        const minDistance = Math.min(...lastDistances);
+        const maxDistance = Math.max(...lastDistances);
+        const avgDistance = lastDistances.reduce((sum, value) => sum + value, 0) / lastDistances.length;
+        const lastDate = new Date(data[data.length - 1].date);
+
+        return Array.from({ length: days }, (_, i) => {
+            const newDate = new Date(lastDate);
+            newDate.setDate(lastDate.getDate() + i + 1);
+
+            const predictedDistance = calculateForecastDistance(avgDistance, minDistance, maxDistance);
+
+            return {
+                date: newDate.toISOString().split('T')[0],
+                startTime: "00:00",
+                duration: 0,
+                distance: Number(predictedDistance.toFixed(1)),
+                maxSpeed: 0,
+                minSpeed: 0,
+                avgSpeed: 0,
+                avgPulse: 0,
+                isForecast: true
+            };
+        });
+    };
+
+    const historicalData = useMemo(() => processHistoricalData(joggingData), []);
+    const forecastData = useMemo(() => generateForecast(historicalData, forecastDays), [historicalData, forecastDays]);
+
+    const allData = [...historicalData, ...forecastData];
+
+    const chartData = {
+        labels: allData.map(item => item.date),
+        datasets: [
+            {
+                label: 'Дистанция (км)',
+                data: allData.map(item => item.distance),
+                borderColor: '#1890ff',
+                backgroundColor: 'rgba(24, 144, 255, 0.2)',
+                borderWidth: 2,
+                pointBackgroundColor: allData.map(item => item.isForecast ? '#ff4d4f' : '#1890ff'),
+                tension: 0.3,
+                fill: true
+            }
+        ]
+    };
 
     return (
         <div>
-            <h2>Прогноз дистанции на следующие 5 дней</h2>
-            <ul>
-                {forecastData.map(item => (
-                    <li key={item.date}>
-                        {item.date}: {item.forecast ? item.forecast.toFixed(2) : 'Нет данных'} км
-                    </li>
-                ))}
-            </ul>
+            <AntTitle level={3} style={{ marginBottom: '24px' }}>
+                Прогноз дистанции пробежек
+            </AntTitle>
+
+            <Card style={{ marginBottom: '24px' }}>
+                <div style={{ marginBottom: '16px' }}>
+                    <Statistic title="Прогноз на" value={forecastDays} suffix={forecastDays === 1 ? 'день' : 'дней'} />
+                </div>
+                <Select
+                    style={{ width: '100%' }}
+                    value={forecastDays}
+                    onChange={setForecastDays}
+                    options={[1, 3, 5, 7, 10].map(d => ({
+                        value: d,
+                        label: `Прогноз на ${d} ${d === 1 ? 'день' : 'дня'}`
+                    }))}
+                />
+            </Card>
+
+            <Card title="График дистанции с прогнозом" style={{ marginBottom: '24px' }}>
+                <div style={{ width: '50%', height: '400px', margin: 'auto'}}>
+                    <Line data={chartData} options={{ responsive: true }} />
+                </div>
+            </Card>
+
+            <Card title="Методология расчета">
+                <Alert
+                    message="Алгоритм прогнозирования"
+                    description={
+                        <>
+                            <Text>
+                                Прогноз выполнен методом экстраполяции с учетом диапазона значений за последние 30 дней.
+                                На основе случайных колебаний рассчитывается тренд на указанное количество дней.
+                            </Text>
+                            <br />
+                            <Text>
+                                Исторические данные загружаются из файла jogging.json.
+                            </Text>
+                        </>
+                    }
+                    type="info"
+                    showIcon
+                />
+            </Card>
         </div>
     );
 };
