@@ -2,8 +2,17 @@ import React, { useEffect, useState } from 'react';
 import originalData from '../../config/jogging.json';
 import { Table, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale } from 'chart.js';
-import Forecast from './Forecast';
+import {
+    Chart as ChartJS,
+    LineElement,
+    PointElement,
+    LinearScale,
+    Title,
+    Tooltip,
+    Legend,
+    CategoryScale,
+} from 'chart.js';
+import Forecast from '../ui/Forecast';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale);
 
@@ -47,12 +56,11 @@ type ChartDataType = {
 
 const createChartDataset = (
     labels: string[],
-    distances: number[], 
+    distances: number[],
     label: string,
     borderColor: string,
-    backgroundColor: string
-    ): ChartDataType => {
-    
+    backgroundColor: string,
+): ChartDataType => {
     return {
         labels,
         datasets: [
@@ -62,28 +70,34 @@ const createChartDataset = (
                 borderColor,
                 backgroundColor,
                 fill: true,
-            }
-        ]
+            },
+        ],
     };
 };
 
 const processData = (data: JoggingData[]): JoggingData[] => {
-    return data.map(item => ({
+    return data.map((item) => ({
         key: item.date,
-        ...item
+        ...item,
     }));
 };
 
 const generateDistanceChartData = (data: JoggingData[]): ChartDataType => {
-    const labels = data.map(item => item.date);
-    const distances = data.map(item => item.distance);
+    const labels = data.map((item) => item.date);
+    const distances = data.map((item) => item.distance);
     return createChartDataset(labels, distances, 'Расстояние (км)', 'rgba(75, 192, 192, 1)', 'rgba(75, 192, 192, 0.2)');
 };
 
 const generateSpeedChartData = (data: JoggingData[]): ChartDataType => {
-    const labels = data.map(item => item.date);
-    const avgSpeeds = data.map(item => item.avgSpeed);
-    return createChartDataset(labels, avgSpeeds, 'Средняя скорость (км/ч)', 'rgba(153, 102, 255, 1)', 'rgba(153, 102, 255, 0.2)');
+    const labels = data.map((item) => item.date);
+    const avgSpeeds = data.map((item) => item.avgSpeed);
+    return createChartDataset(
+        labels,
+        avgSpeeds,
+        'Средняя скорость (км/ч)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(153, 102, 255, 0.2)',
+    );
 };
 
 const calculateWeekendDistance = (data: JoggingData[]): number => {
@@ -111,33 +125,44 @@ const Jogging: React.FC = () => {
         setTotalWeekendDistance(calculateWeekendDistance(processedData));
     }, []);
 
-
+    const columns = Object.keys(columnTitles).map((key) => ({
+        title: columnTitles[key as keyof ColumnTitlesType],
+        dataIndex: key as keyof JoggingData,
+        key: key,
+    }));
 
     return (
-        <div style={{padding: '24px'}}>
-            <AntTitle level={2} style={{ marginBottom: '24px' }}>Данные о пробежках</AntTitle>
-            <Table dataSource={data} pagination={{ pageSize: 10 }}>
-                {Object.keys(columnTitles).map((key) => (
-                    <Table.Column 
-                        title={columnTitles[key as keyof ColumnTitlesType]} 
-                        dataIndex={key as keyof JoggingData}
-                        key={key}/>
-                ))}
-            </Table>
+        <div style={{ padding: '24px' }}>
+            <AntTitle level={2} style={{ marginBottom: '24px' }}>
+                Данные о пробежках
+            </AntTitle>
+            <Table dataSource={data} pagination={{ pageSize: 10 }} columns={columns} rowKey="date"/>
 
-            <AntTitle level={3} style={{ marginBottom: '24px' }}>Графики пробежек</AntTitle>
+            <AntTitle level={3} style={{ marginBottom: '24px' }}>
+                Графики пробежек
+            </AntTitle>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ width: '50%' }}>
-                    {distanceChartData ? <Line data={distanceChartData} /> : <Text>Загрузка данных для графика дистанции...</Text>}
+                    {distanceChartData ? (
+                        <Line data={distanceChartData} />
+                    ) : (
+                        <Text>Загрузка данных для графика дистанции...</Text>
+                    )}
                 </div>
                 <div style={{ width: '50%' }}>
-                    {speedChartData ? <Line data={speedChartData} /> : <Text>Загрузка данных для графика скорости...</Text>}
+                    {speedChartData ? (
+                        <Line data={speedChartData} />
+                    ) : (
+                        <Text>Загрузка данных для графика скорости...</Text>
+                    )}
                 </div>
             </div>
 
-            <AntTitle level={3} style={{ marginBottom: '12px' }}>Сумма пройденных километров за выходные дни</AntTitle>
+            <AntTitle level={3} style={{ marginBottom: '12px' }}>
+                Сумма пройденных километров за выходные дни
+            </AntTitle>
             <Text style={{ marginBottom: '24px' }}>{`Общая сумма: ${totalWeekendDistance} км`}</Text>
-            <Forecast/>
+            <Forecast />
         </div>
     );
 };
