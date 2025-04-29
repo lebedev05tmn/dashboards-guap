@@ -12,26 +12,12 @@ import {
     Legend,
     CategoryScale,
 } from 'chart.js';
-import Forecast from '../ui/Forecast';
+import Forecast from '../ui/ForecastJogging';
 
 ChartJS.register(LineElement, PointElement, LinearScale, Title, Tooltip, Legend, CategoryScale);
 
 const { Title: AntTitle, Text } = Typography;
 
-type ColumnTitlesType = {
-    [key in keyof JoggingData]: string;
-};
-
-const columnTitles: ColumnTitlesType = {
-    date: 'Дата',
-    startTime: 'Время начала',
-    duration: 'Длительность (мин)',
-    distance: 'Расстояние (км)',
-    maxSpeed: 'Макс. скорость (км/ч)',
-    minSpeed: 'Мин. скорость (км/ч)',
-    avgSpeed: 'Сред. скорость (км/ч)',
-    avgPulse: 'Сред. пульс',
-};
 type JoggingData = {
     date: string;
     startTime: string;
@@ -52,6 +38,24 @@ type ChartDataType = {
         backgroundColor: string;
         fill: boolean;
     }[];
+};
+
+type StateType = {
+    data: JoggingData[];
+    distanceChartData: ChartDataType | null;
+    speedChartData: ChartDataType | null;
+    totalWeekendDistance: number;
+};
+
+const columnTitles: { [key in keyof JoggingData]: string } = {
+    date: 'Дата',
+    startTime: 'Время начала',
+    duration: 'Длительность (мин)',
+    distance: 'Расстояние (км)',
+    maxSpeed: 'Макс. скорость (км/ч)',
+    minSpeed: 'Мин. скорость (км/ч)',
+    avgSpeed: 'Сред. скорость (км/ч)',
+    avgPulse: 'Сред. пульс',
 };
 
 const createChartDataset = (
@@ -112,46 +116,51 @@ const calculateWeekendDistance = (data: JoggingData[]): number => {
 };
 
 const Jogging: React.FC = () => {
-    const [data, setData] = useState<JoggingData[]>([]);
-    const [distanceChartData, setDistanceChartData] = useState<ChartDataType | null>(null);
-    const [speedChartData, setSpeedChartData] = useState<ChartDataType | null>(null);
-    const [totalWeekendDistance, setTotalWeekendDistance] = useState<number>(0);
+    const [state, setState] = useState<StateType>({
+        data: [],
+        distanceChartData: null,
+        speedChartData: null,
+        totalWeekendDistance: 0,
+    });
 
     useEffect(() => {
         const processedData = processData(originalData);
-        setData(processedData);
-        setDistanceChartData(generateDistanceChartData(processedData));
-        setSpeedChartData(generateSpeedChartData(processedData));
-        setTotalWeekendDistance(calculateWeekendDistance(processedData));
+
+        setState({
+            data: processedData,
+            distanceChartData: generateDistanceChartData(processedData),
+            speedChartData: generateSpeedChartData(processedData),
+            totalWeekendDistance: calculateWeekendDistance(processedData),
+        });
     }, []);
 
     const columns = Object.keys(columnTitles).map((key) => ({
-        title: columnTitles[key as keyof ColumnTitlesType],
+        title: columnTitles[key as keyof JoggingData],
         dataIndex: key as keyof JoggingData,
         key: key,
     }));
 
     return (
-        <div style={{ padding: '24px' }}>
+        < div style={{ padding: '24px' }}>
             <AntTitle level={2} style={{ marginBottom: '24px' }}>
                 Данные о пробежках
             </AntTitle>
-            <Table dataSource={data} pagination={{ pageSize: 10 }} columns={columns} rowKey="date"/>
+            <Table dataSource={state.data} pagination={{ pageSize: 10 }} columns={columns} rowKey="date"/>
 
             <AntTitle level={3} style={{ marginBottom: '24px' }}>
                 Графики пробежек
             </AntTitle>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                 <div style={{ width: '50%' }}>
-                    {distanceChartData ? (
-                        <Line data={distanceChartData} />
+                    {state.distanceChartData ? (
+                        <Line data={state.distanceChartData} />
                     ) : (
                         <Text>Загрузка данных для графика дистанции...</Text>
                     )}
                 </div>
                 <div style={{ width: '50%' }}>
-                    {speedChartData ? (
-                        <Line data={speedChartData} />
+                    {state.speedChartData ? (
+                        <Line data={state.speedChartData} />
                     ) : (
                         <Text>Загрузка данных для графика скорости...</Text>
                     )}
@@ -161,7 +170,7 @@ const Jogging: React.FC = () => {
             <AntTitle level={3} style={{ marginBottom: '12px' }}>
                 Сумма пройденных километров за выходные дни
             </AntTitle>
-            <Text style={{ marginBottom: '24px' }}>{`Общая сумма: ${totalWeekendDistance} км`}</Text>
+            <Text style={{ marginBottom: '24px' }}>{`Общая сумма: ${state.totalWeekendDistance} км`}</Text>
             <Forecast />
         </div>
     );

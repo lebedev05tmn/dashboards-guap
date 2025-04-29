@@ -75,7 +75,7 @@ const generateForecast = (data: ProcessedData[], days: number): ProcessedData[] 
     });
 };
 
-const Forecast: React.FC = () => {
+const ForecastJogging: React.FC = () => {
     const [forecastDays, setForecastDays] = useState<number>(DAYS_FOR_FORECAST);
 
     const historicalData = processHistoricalData(joggingData);
@@ -149,4 +149,4 @@ const Forecast: React.FC = () => {
     );
 };
 
-export default Forecast;
+export default ForecastJogging;
