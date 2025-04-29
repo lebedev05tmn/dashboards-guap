@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Card, Statistic, Select, Typography, Alert } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler } from 'chart.js';
@@ -36,50 +36,50 @@ interface ProcessedData extends JoggingData {
     isForecast?: boolean;
 }
 
+const processHistoricalData = (data: JoggingData[]): ProcessedData[] => {
+    return data.map((item) => ({
+        ...item,
+        isForecast: false
+    }));
+};
+
+const calculateForecastDistance = (avgDistance: number, minDistance: number, maxDistance: number): number => {
+    const randomFactor = (Math.random() * (RANDOM_CHANGE_PERCENTAGE * 7) - RANDOM_CHANGE_PERCENTAGE * 3) * avgDistance;
+    return Math.max(minDistance, Math.min(maxDistance, avgDistance + randomFactor));
+};
+
+const generateForecast = (data: ProcessedData[], days: number): ProcessedData[] => {
+    const lastDistances = data.slice(-30).map(item => item.distance);
+    const minDistance = Math.min(...lastDistances);
+    const maxDistance = Math.max(...lastDistances);
+    const avgDistance = lastDistances.reduce((sum, value) => sum + value, 0) / lastDistances.length;
+    const lastDate = new Date(data[data.length - 1].date);
+
+    return Array.from({ length: days }, (_, i) => {
+        const newDate = new Date(lastDate);
+        newDate.setDate(lastDate.getDate() + i + 1);
+
+        const predictedDistance = calculateForecastDistance(avgDistance, minDistance, maxDistance);
+
+        return {
+            date: newDate.toISOString().split('T')[0],
+            startTime: "00:00",
+            duration: 0,
+            distance: Number(predictedDistance.toFixed(1)),
+            maxSpeed: 0,
+            minSpeed: 0,
+            avgSpeed: 0,
+            avgPulse: 0,
+            isForecast: true
+        };
+    });
+};
+
 const Forecast: React.FC = () => {
     const [forecastDays, setForecastDays] = useState<number>(DAYS_FOR_FORECAST);
 
-    const processHistoricalData = (data: JoggingData[]): ProcessedData[] => {
-        return data.map((item) => ({
-            ...item,
-            isForecast: false
-        }));
-    };
-
-    const calculateForecastDistance = (avgDistance: number, minDistance: number, maxDistance: number): number => {
-        const randomFactor = (Math.random() * (RANDOM_CHANGE_PERCENTAGE * 7) - RANDOM_CHANGE_PERCENTAGE * 3) * avgDistance;
-        return Math.max(minDistance, Math.min(maxDistance, avgDistance + randomFactor));
-    };
-
-    const generateForecast = (data: ProcessedData[], days: number): ProcessedData[] => {
-        const lastDistances = data.slice(-30).map(item => item.distance);
-        const minDistance = Math.min(...lastDistances);
-        const maxDistance = Math.max(...lastDistances);
-        const avgDistance = lastDistances.reduce((sum, value) => sum + value, 0) / lastDistances.length;
-        const lastDate = new Date(data[data.length - 1].date);
-
-        return Array.from({ length: days }, (_, i) => {
-            const newDate = new Date(lastDate);
-            newDate.setDate(lastDate.getDate() + i + 1);
-
-            const predictedDistance = calculateForecastDistance(avgDistance, minDistance, maxDistance);
-
-            return {
-                date: newDate.toISOString().split('T')[0],
-                startTime: "00:00",
-                duration: 0,
-                distance: Number(predictedDistance.toFixed(1)),
-                maxSpeed: 0,
-                minSpeed: 0,
-                avgSpeed: 0,
-                avgPulse: 0,
-                isForecast: true
-            };
-        });
-    };
-
-    const historicalData = useMemo(() => processHistoricalData(joggingData), []);
-    const forecastData = useMemo(() => generateForecast(historicalData, forecastDays), [historicalData, forecastDays]);
+    const historicalData = processHistoricalData(joggingData);
+    const forecastData = generateForecast(historicalData, forecastDays);
 
     const allData = [...historicalData, ...forecastData];
 
@@ -113,7 +113,7 @@ const Forecast: React.FC = () => {
                     style={{ width: '100%' }}
                     value={forecastDays}
                     onChange={setForecastDays}
-                    options={[1, 3, 5, 7, 10].map(d => ({
+                    options={[1, 3, 5 , 7, 10].map(d => ({
                         value: d,
                         label: `Прогноз на ${d} ${getDaySuffix(d)}`
                     }))}
