@@ -26,7 +26,7 @@ type InflationData = {
 };
 
 const getYearsToPredictLabel = (yearsToPredict: number) => {
-    const plural = new Intl.PluralRules('ar-EG').select(yearsToPredict);
+    const plural = new Intl.PluralRules('ru-RU').select(yearsToPredict);
 
     switch (plural) {
         case 'one':
