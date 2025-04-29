@@ -11,15 +11,18 @@ const { Title: AntTitle, Text } = Typography;
 const DAYS_FOR_FORECAST = 7;
 const RANDOM_CHANGE_PERCENTAGE = 0.1;
 
+
 const getDaySuffix = (days: number) => {
-    if (days % 10 === 1 && days % 100 !== 11) {
-        return 'день';
-    } else if (days % 10 >= 2 && days % 10 <= 4 && (days % 100 < 10 || days % 100 >= 20)) {
-        return 'дня';
-    } else {
-        return 'дней';
+    const plural = new Intl.PluralRules('ru-RU').select(days);
+    switch (plural) {
+        case 'one':
+            return `${days} день`;
+        case 'few':
+            return `${days} дня`;
+        default:
+            return `${days} дней`;
     }
-}
+};
 
 interface JoggingData {
     date: string;
@@ -115,7 +118,7 @@ const ForecastJogging: React.FC = () => {
                     onChange={setForecastDays}
                     options={[1, 3, 5 , 7, 10].map(d => ({
                         value: d,
-                        label: `Прогноз на ${d} ${getDaySuffix(d)}`
+                        label: `Прогноз на ${getDaySuffix(d)}`
                     }))}
                 />
             </Card>
