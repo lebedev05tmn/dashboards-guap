@@ -1,0 +1,86 @@
+[
+    {
+        "year": 2010,
+        "immigrants": 413256,
+        "emigrants": 198743,
+        "netMigration": 214513
+    },
+    {
+        "year": 2011,
+        "immigrants": 427891,
+        "emigrants": 187654,
+        "netMigration": 240237
+    },
+    {
+        "year": 2012,
+        "immigrants": 396542,
+        "emigrants": 203456,
+        "netMigration": 193086
+    },
+    {
+        "year": 2013,
+        "immigrants": 418765,
+        "emigrants": 197832,
+        "netMigration": 220933
+    },
+    {
+        "year": 2014,
+        "immigrants": 584321,
+        "emigrants": 253487,
+        "netMigration": 330834
+    },
+    {
+        "year": 2015,
+        "immigrants": 652143,
+        "emigrants": 301234,
+        "netMigration": 350909
+    },
+    {
+        "year": 2016,
+        "immigrants": 587654,
+        "emigrants": 268765,
+        "netMigration": 318889
+    },
+    {
+        "year": 2017,
+        "immigrants": 512345,
+        "emigrants": 276543,
+        "netMigration": 235802
+    },
+    {
+        "year": 2018,
+        "immigrants": 543210,
+        "emigrants": 287654,
+        "netMigration": 255556
+    },
+    {
+        "year": 2019,
+        "immigrants": 567890,
+        "emigrants": 312345,
+        "netMigration": 255545
+    },
+    {
+        "year": 2020,
+        "immigrants": 423456,
+        "emigrants": 321098,
+        "netMigration": 102358
+    },
+    {
+        "year": 2021,
+        "immigrants": 598765,
+        "emigrants": 349876,
+        "netMigration": 248889
+    },
+    {
+        "year": 2022,
+        "immigrants": 476543,
+        "emigrants": 682109,
+        "netMigration": -205566
+    },
+    {
+        "year": 2023,
+        "immigrants": 531234,
+        "emigrants": 412345,
+        "netMigration": 118889
+    }
+]
