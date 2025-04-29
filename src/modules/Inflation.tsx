@@ -25,6 +25,19 @@ type InflationData = {
     comment: string;
 };
 
+const getYearsToPredictLabel = (yearsToPredict: number) => {
+    const plural = new Intl.PluralRules('ru-RU').select(yearsToPredict);
+
+    switch (plural) {
+        case 'one':
+            return `${yearsToPredict} год`;
+        case 'few':
+            return `${yearsToPredict} года`;
+        default:
+            return `${yearsToPredict} лет`;
+    }
+};
+
 const columns = [
     {
         title: 'Год',
@@ -231,7 +244,9 @@ const Inflation: FC = () => {
                                 height: '100%',
                             }}
                         >
-                            <Text strong>Через {yearsToPredict} лет:</Text>
+                            <Text strong>
+                                Через {yearsToPredict} {getYearsToPredictLabel(yearsToPredict)}:
+                            </Text>
                             <AntTitle level={4} style={{ marginTop: '8px', marginBottom: 0 }}>
                                 {futurePrice} ₽
                             </AntTitle>
