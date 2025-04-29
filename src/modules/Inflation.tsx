@@ -175,7 +175,13 @@ const Inflation: FC = () => {
             </AntTitle>
 
             <Card title="Исторические данные и прогноз" style={{ marginBottom: '24px' }}>
-                <Table columns={columns} dataSource={combinedData} rowKey="year" pagination={false} bordered />
+                <Table
+                    columns={columns}
+                    dataSource={combinedData}
+                    rowKey="year"
+                    pagination={{ pageSize: 10 }}
+                    bordered
+                />
                 <Text type="secondary" style={{ marginTop: '8px', display: 'block' }}>
                     * Прогнозируемые значения
                 </Text>
