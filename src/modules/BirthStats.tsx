@@ -39,6 +39,83 @@ interface ProcessedData extends BirthData {
   isForecast?: boolean;
 }
 
+// Вынесенные константы
+const tableColumns = [
+  {
+    title: 'Год',
+    dataIndex: 'year',
+    key: 'year',
+    sorter: (a: ProcessedData, b: ProcessedData) => a.year - b.year,
+  },
+  {
+    title: 'Процент (%)',
+    dataIndex: 'percentage',
+    key: 'percentage',
+    sorter: (a: ProcessedData, b: ProcessedData) => a.percentage - b.percentage,
+  },
+  {
+    title: 'Изменение (%)',
+    dataIndex: 'change',
+    key: 'change',
+    render: (value: number) => (
+      <Text style={{ color: value >= 0 ? '#52c41a' : '#ff4d4f' }}>
+        {value > 0 ? '+' : ''}{value}
+      </Text>
+    ),
+  }
+];
+
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: { 
+      position: 'top' as const,
+      labels: {
+        font: {
+          size: 14
+        }
+      }
+    },
+    tooltip: {
+      callbacks: {
+        label: (ctx: TooltipItem<'line'>) => {
+          return '';
+        }
+      }
+    }
+  },
+  scales: {
+    y: {
+      title: {
+        display: true,
+        text: 'Процент (%)',
+        font: {
+          size: 14
+        }
+      },
+      ticks: {
+        font: {
+          size: 12
+        }
+      }
+    },
+    x: {
+      title: {
+        display: true,
+        text: 'Год',
+        font: {
+          size: 14
+        }
+      },
+      ticks: {
+        font: {
+          size: 12
+        }
+      }
+    }
+  }
+};
+
 const BirthStatistics: React.FC = () => {
   const [forecastYears, setForecastYears] = useState<number>(3);
 
@@ -64,8 +141,8 @@ const BirthStatistics: React.FC = () => {
 
   const historicalData = useMemo(() => processHistoricalData(birthData), []);
   const forecastData = useMemo(() => generateForecast(historicalData, forecastYears), 
-    [historicalData, forecastYears]);
-  
+    [historicalData, forecastYears ]);
+
   const allData = [...historicalData, ...forecastData];
 
   const { maxChange, minChange } = useMemo(() => {
@@ -75,58 +152,6 @@ const BirthStatistics: React.FC = () => {
       minChange: Math.min(...changes)
     };
   }, [historicalData]);
-
-  const chartOptions = {
-    responsive: true,
-    plugins: {
-      legend: { 
-        position: 'top' as const,
-        labels: {
-          font: {
-            size: 14
-          }
-        }
-      },
-      tooltip: {
-        callbacks: {
-          label: (ctx: TooltipItem<'line'>) => {
-            const item = allData[ctx.dataIndex];
-            return `${ctx.dataset.label}: ${item.percentage}%${item.isForecast ? ' (прогноз)' : ''}`;
-          }
-        }
-      }
-    },
-    scales: {
-      y: {
-        title: {
-          display: true,
-          text: 'Процент (%)',
-          font: {
-            size: 14
-          }
-        },
-        ticks: {
-          font: {
-            size: 12
-          }
-        }
-      },
-      x: {
-        title: {
-          display: true,
-          text: 'Год',
-          font: {
-            size: 14
-          }
-        },
-        ticks: {
-          font: {
-            size: 12
-          }
-        }
-      }
-    }
-  };
 
   const chartData = {
     labels: allData.map(item => item.year),
@@ -143,31 +168,6 @@ const BirthStatistics: React.FC = () => {
       }
     ]
   };
-
-  const tableColumns = [
-    {
-      title: 'Год',
-      dataIndex: 'year',
-      key: 'year',
-      sorter: (a: ProcessedData, b: ProcessedData) => a.year - b.year,
-    },
-    {
-      title: 'Процент (%)',
-      dataIndex: 'percentage',
-      key: 'percentage',
-      sorter: (a: ProcessedData, b: ProcessedData) => a.percentage - b.percentage,
-    },
-    {
-      title: 'Изменение (%)',
-      dataIndex: 'change',
-      key: 'change',
-      render: (value: number) => (
-        <Text style={{ color: value >= 0 ? '#52c41a' : '#ff4d4f' }}>
-          {value > 0 ? '+' : ''}{value}
-        </Text>
-      ),
-    }
-  ];
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
