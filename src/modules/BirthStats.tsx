@@ -1,14 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import { Card, Table, Statistic, Row, Col, Select, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
-import { 
-  Chart as ChartJS, 
-  CategoryScale, 
-  LinearScale, 
-  PointElement, 
-  LineElement, 
-  Title, 
-  Tooltip, 
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
   Legend,
   Filler,
   TooltipItem
@@ -39,7 +39,82 @@ interface ProcessedData extends BirthData {
   isForecast: boolean;
 }
 
+// Чистая функция, выносим за компонент
+const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
+  return data.map((item, index) => ({
+    ...item,
+    change: index > 0 ? Number((item.percentage - data[index - 1].percentage).toFixed(1)) : 0,
+    isForecast: false,
+  }));
+};
+
+// Чистая функция, выносим за компонент
+const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
+  const lastValues = data.slice(-3).map(item => item.percentage);
+  const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
+  const lastYear = data[data.length - 1].year;
+
+  return Array.from({ length: years }, (_, i) => ({
+    year: lastYear + i + 1,
+    percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
+    change: 0, // Для прогнозов изменение можно не считать или установить 0
+    isForecast: true,
+  }));
+};
+
 // Вынесенные константы
+const chartOptions = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: 'top' as const,
+      labels: {
+        font: {
+          size: 14,
+        },
+      },
+    },
+    tooltip: {
+      callbacks: {
+        label: (ctx: TooltipItem<'line'>) => {
+          // Здесь нужно быть аккуратным с allData, поэтому эту часть в компоненте
+          return '';
+        },
+      },
+    },
+  },
+  scales: {
+    y: {
+      title: {
+        display: true,
+        text: 'Процент (%)',
+        font: {
+          size: 14,
+        },
+      },
+      ticks: {
+        font: {
+          size: 12,
+        },
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: 'Год',
+        font: {
+          size: 14,
+        },
+      },
+      ticks: {
+        font: {
+          size: 12,
+        },
+      },
+    },
+  },
+} as const;
+
 const tableColumns = [
   {
     title: 'Год',
@@ -59,115 +134,73 @@ const tableColumns = [
     key: 'change',
     render: (value: number) => (
       <Text style={{ color: value >= 0 ? '#52c41a' : '#ff4d4f' }}>
-        {value > 0 ? '+' : ''}{value}
- </Text>
+        {value > 0 ? '+' : ''}
+        {value}
+      </Text>
     ),
-  }
-];
-
-const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: { 
-      position: 'top' as const,
-      labels: {
-        font: {
-          size: 14
-        }
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: (ctx: TooltipItem<'line'>) => {
-          return '';
-        }
-      }
-    }
   },
-  scales: {
-    y: {
-      title: {
-        display: true,
-        text: 'Процент (%)',
-        font: {
-          size: 14
-        }
-      },
-      ticks: {
-        font: {
-          size: 12
-        }
-      }
-    },
-    x: {
-      title: {
-        display: true,
-        text: 'Год',
-        font: {
-          size: 14
-        }
-      },
-      ticks: {
-        font: {
-          size: 12
-        }
-      }
-    }
-  }
-};
-
-const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
-  return data.map((item, index) => ({
-    ...item,
-    change: index > 0 ? Number((item.percentage - data[index - 1].percentage).toFixed(1)) : 0,
-    isForecast: false
-  }));
-};
-
-const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
-  const lastValues = data.slice(-3).map(item => item.percentage);
-  const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
-  const lastYear = data[data.length - 1].year;
-
-  return Array.from({ length: years }, (_, i) => ({
-    year: lastYear + i + 1,
-    percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
-    change: 0,
-    isForecast: true
-  }));
-};
+];
 
 const BirthStatistics: React.FC = () => {
   const [forecastYears, setForecastYears] = useState<number>(3);
 
-  const historicalData = useMemo(() => processHistoricalData(birthData), []);
-  const forecastData = useMemo(() => generateForecast(historicalData, forecastYears), [historicalData, forecastYears]);
+  // processHistoricalData не нужно мемоизировать — чистая и быстрая функция
+  const historicalData = processHistoricalData(birthData);
+
+  // generateForecast мемоизируем, зависит от historicalData и forecastYears
+  const forecastData = useMemo(() => generateForecast(historicalData, forecastYears), [
+    historicalData,
+    forecastYears,
+  ]);
 
   const allData = [...historicalData, ...forecastData];
 
+  // Пересоздаем chartOptions.tooltip.callbacks.label с актуальными данными внутри компонента
+  const chartOptionsWithLabel = useMemo(() => {
+    return {
+      ...chartOptions,
+      plugins: {
+        ...chartOptions.plugins,
+        tooltip: {
+          callbacks: {
+            label: (ctx: TooltipItem<'line'>) => {
+              const item = allData[ctx.dataIndex];
+              return `${ctx.dataset.label}: ${item.percentage}%${item.isForecast ? ' (прогноз)' : ''}`;
+            },
+          },
+        },
+        legend: chartOptions.plugins.legend,
+      },
+    };
+  }, [allData]);
+
+  // Максимальное и минимальное изменение среди исторических данных (без прогноза)
   const { maxChange, minChange } = useMemo(() => {
     const changes = historicalData.slice(1).map(item => item.change);
     return {
       maxChange: Math.max(...changes),
-      minChange: Math.min(...changes)
+      minChange: Math.min(...changes),
     };
   }, [historicalData]);
 
-  const chartData = {
-    labels: allData.map(item => item.year),
-    datasets: [
-      {
-        label: 'Дети вне брака (%)',
-        data: allData.map(item => item.percentage),
-        borderColor: '#1890ff',
-        backgroundColor: 'rgba(24, 144, 255, 0.2)',
-        borderWidth: 2,
-        pointBackgroundColor: allData.map(item => item.isForecast ? '#ff4d4f' : '#1890ff'),
-        tension: 0.3,
-        fill: true
-      }
-    ]
-  };
+  const chartData = useMemo(
+    () => ({
+      labels: allData.map(item => item.year),
+      datasets: [
+        {
+          label: 'Дети вне брака (%)',
+          data: allData.map(item => item.percentage),
+          borderColor: '#1890ff',
+          backgroundColor: 'rgba(24, 144, 255, 0.2)',
+          borderWidth: 2,
+          pointBackgroundColor: allData.map(item => (item.isForecast ? '#ff4d4f' : '#1890ff')),
+          tension: 0.3,
+          fill: true,
+        },
+      ],
+    }),
+    [allData]
+  );
 
   return (
     <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
@@ -178,29 +211,19 @@ const BirthStatistics: React.FC = () => {
       <Card style={{ marginBottom: '24px' }}>
         <Row gutter={16}>
           <Col xs={24} sm={12} md={8}>
-            <Statistic
-              title="Максимальный рост"
-              value={maxChange}
-              precision={1}
-              suffix="%"
-            />
+            <Statistic title="Максимальный рост" value={maxChange} precision={1} suffix="%" />
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Statistic
-              title="Минимальный рост"
-              value={minChange}
-              precision={1}
-              suffix="%"
-            />
+            <Statistic title="Минимальный рост" value={minChange} precision={1} suffix="%" />
           </Col>
           <Col xs={24} sm={24} md={8}>
             <Select
               style={{ width: '100%' }}
               value={forecastYears}
               onChange={setForecastYears}
-              options={[1, 2, 3, 5].map(y => ({ 
-                value: y, 
-                label: `Прогноз на ${y} ${y === 1 ? 'год' : y < 5 ? 'года' : 'лет'}`
+              options={[1, 2, 3, 5].map(y => ({
+                value: y,
+                label: `Прогноз на ${y} ${y === 1 ? 'год' : y < 5 ? 'года' : 'лет'}`,
               }))}
             />
           </Col>
@@ -209,15 +232,11 @@ const BirthStatistics: React.FC = () => {
 
       <Card title="Динамика показателей" style={{ marginBottom: '24px' }}>
         <div style={{ height: '400px' }}>
-          <Line data={chartData} options={chartOptions} />
+          <Line data={chartData} options={chartOptionsWithLabel} />
         </div>
       </Card>
 
-      <Card 
-        title="Таблица данных" 
-        style={{ marginBottom: '24px' }}
-        headStyle={{ backgroundColor: '#fafafa' }}
-      >
+      <Card title="Таблица данных" style={{ marginBottom: '24px' }} headStyle={{ backgroundColor: '#fafafa' }}>
         <Table
           columns={tableColumns}
           dataSource={historicalData}
@@ -230,10 +249,7 @@ const BirthStatistics: React.FC = () => {
         </Text>
       </Card>
 
-      <Card
-        title="Методология расчета"
-        headStyle={{ backgroundColor: '#fafafa' }}
-      >
+      <Card title="Методология расчета" headStyle={{ backgroundColor: '#fafafa' }}>
         <Alert
           message="Алгоритм прогнозирования"
           description={
@@ -243,9 +259,7 @@ const BirthStatistics: React.FC = () => {
                 На основе среднего изменения показателя рассчитывается тренд на указанное количество лет.
               </Text>
               <br />
-              <Text>
-                Исторические данные загружаются из файла birth-statistics.json.
-              </Text>
+              <Text>Исторические данные загружаются из файла birth-statistics.json.</Text>
             </>
           }
           type="info"
