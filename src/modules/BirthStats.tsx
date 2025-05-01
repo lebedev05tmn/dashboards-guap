@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Card, Table, Statistic, Row, Col, Select, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
@@ -35,8 +36,8 @@ interface BirthData {
 }
 
 interface ProcessedData extends BirthData {
-  change?: number;
-  isForecast?: boolean;
+  change: number;
+  isForecast: boolean;
 }
 
 // Вынесенные константы
@@ -88,7 +89,7 @@ const chartOptions = {
     y: {
       title: {
         display: true,
-        text: 'Процент (%)',
+        text: 'Про цент (%)',
         font: {
           size: 14
         }
@@ -116,37 +117,38 @@ const chartOptions = {
   }
 };
 
+// Вынесенные чистые функции
+const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
+  return data.map((item, index) => ({
+    ...item,
+    change: index > 0 ? Number((item.percentage - data[index - 1].percentage).toFixed(1)) : 0,
+    isForecast: false
+  }));
+};
+
+const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
+  const lastValues = data.slice(-3).map(item => item.percentage);
+  const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
+  const lastYear = data[data.length - 1].year;
+
+  return Array.from({ length: years }, (_, i) => ({
+    year: lastYear + i + 1,
+    percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
+    change: 0,
+    isForecast: true
+  }));
+};
+
 const BirthStatistics: React.FC = () => {
   const [forecastYears, setForecastYears] = useState<number>(3);
 
-  const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
-    return data.map((item, index) => ({
-      ...item,
-      change: index > 0 ? Number((item.percentage - data[index - 1].percentage).toFixed(1)) : 0,
-      isForecast: false
-    }));
-  };
-
-  const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
-    const lastValues = data.slice(-3).map(item => item.percentage);
-    const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
-    const lastYear = data[data.length - 1].year;
-    
-    return Array.from({ length: years }, (_, i) => ({
-      year: lastYear + i + 1,
-      percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
-      isForecast: true
-    }));
-  };
-
   const historicalData = useMemo(() => processHistoricalData(birthData), []);
-  const forecastData = useMemo(() => generateForecast(historicalData, forecastYears), 
-    [historicalData, forecastYears ]);
+  const forecastData = useMemo(() => generateForecast(historicalData, forecastYears), [historicalData, forecastYears]);
 
   const allData = [...historicalData, ...forecastData];
 
   const { maxChange, minChange } = useMemo(() => {
-    const changes = historicalData.slice(1).map(item => item.change || 0);
+    const changes = historicalData.slice(1).map(item => item.change);
     return {
       maxChange: Math.max(...changes),
       minChange: Math.min(...changes)
@@ -225,7 +227,7 @@ const BirthStatistics: React.FC = () => {
           pagination={false}
           bordered
         />
-        <Text type="secondary" style={{ marginTop: '16px', display: 'block' }}>
+        <Text type=" secondary" style={{ marginTop: '16px', display: 'block' }}>
           * Данные за последние {historicalData.length} лет
         </Text>
       </Card>
