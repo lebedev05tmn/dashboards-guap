@@ -1,5 +1,5 @@
 import { FC, useState, useEffect } from 'react';
-import { Table, Card, Row, Col, InputNumber, Divider, Typography, Alert } from 'antd';
+import { Table, Card, Row, Col, InputNumber, Divider, Typography, Alert, Spin } from 'antd';
 import { Line } from 'react-chartjs-2';
 import {
     Chart as ChartJS,
@@ -11,7 +11,6 @@ import {
     Tooltip,
     Legend,
     Filler,
-    ChartOptions,
 } from 'chart.js';
 import { ContextProxy } from 'chart.js/helpers';
 import migrationData from '../../config/migration.json';
@@ -24,6 +23,16 @@ type MigrationData = {
     emigrants: number;
     netMigration: number;
     isPredicted?: boolean;
+};
+
+const getYearWord = (years: number) => {
+    const lastOne = years % 10;
+    const lastTwo = years % 100;
+
+    if (11 <= lastTwo && lastTwo <= 19) return 'лет';
+    if (lastOne === 1) return 'год';
+    if (2 <= lastOne && lastOne <= 4) return 'года';
+    return 'лет';
 };
 
 const { Title: AntTitle, Text } = Typography;
@@ -125,33 +134,36 @@ const MigrationDashboard: FC = () => {
             return [];
         }
 
-        const lastYears = originalData.slice(-windowSize);
-        const predictedData: MigrationData[] = [];
+        const lastYears = [...originalData.slice(-windowSize)];
         const lastYear = originalData[originalData.length - 1].year;
 
-        for (let i = 1; i <= yearsToPredict; i++) {
+        return Array.from({ length: yearsToPredict }, (_, i) => {
             const avgImm = lastYears.reduce((sum, item) => sum + item.immigrants, 0) / windowSize;
             const avgEm = lastYears.reduce((sum, item) => sum + item.emigrants, 0) / windowSize;
 
             const newPrediction = {
-                year: lastYear + i,
+                year: lastYear + i + 1,
                 immigrants: Math.round(avgImm),
                 emigrants: Math.round(avgEm),
                 netMigration: Math.round(avgImm - avgEm),
                 isPredicted: true,
             };
 
-            predictedData.push(newPrediction);
-
             lastYears.shift();
             lastYears.push(newPrediction);
-        }
 
-        return predictedData;
+            return newPrediction;
+        });
     };
 
     if (loading) {
-        return <div>Загрузка данных...</div>;
+        return (
+            <div style={{ padding: 24 }}>
+                <Text type="secondary">
+                    <Spin size="small" /> Загрузка данных...
+                </Text>
+            </div>
+        );
     }
 
     const predictedData = predictFutureValues();
@@ -160,58 +172,52 @@ const MigrationDashboard: FC = () => {
 
     const chartData = {
         labels: combinedData.map((item) => item.year),
-        datasets: [
-            {
-                label: 'Иммигранты (факт)',
-                data: originalData.map((item) => item.immigrants),
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            },
-            {
-                label: 'Эмигранты (факт)',
-                data: originalData.map((item) => item.emigrants),
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                tension: 0.4,
-                fill: false,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            },
-            {
-                label: 'Иммигранты (прогноз)',
-                data: [
-                    ...originalData.slice(0, -1).map(() => null),
-                    originalData[originalData.length - 1].immigrants,
-                    ...predictedData.map((item) => item.immigrants),
-                ],
-                borderColor: 'rgb(75, 192, 192)',
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderDash: [5, 5],
-                tension: 0.4,
-                fill: false,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            },
-            {
-                label: 'Эмигранты (прогноз)',
-                data: [
-                    ...originalData.slice(0, -1).map(() => null),
-                    originalData[originalData.length - 1].emigrants,
-                    ...predictedData.map((item) => item.emigrants),
-                ],
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderDash: [5, 5],
-                tension: 0.4,
-                fill: false,
-                pointRadius: 5,
-                pointHoverRadius: 7,
-            },
-        ] as ChartOptions['datasets'],
+        datasets: (() => {
+            const dataTypes: {
+                key: keyof MigrationData;
+                label: string;
+                color: string;
+            }[] = [
+                {
+                    key: 'immigrants',
+                    label: 'Иммигранты',
+                    color: '75, 192, 192',
+                },
+                {
+                    key: 'emigrants',
+                    label: 'Эмигранты',
+                    color: '255, 99, 132',
+                },
+            ];
+
+            return dataTypes.flatMap(({ key, label, color }) => [
+                {
+                    label: `${label} (факт)`,
+                    data: originalData.map((item) => item[key]),
+                    borderColor: `rgb(${color})`,
+                    backgroundColor: `rgba(${color}, 0.2)`,
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                },
+                {
+                    label: `${label} (прогноз)`,
+                    data: [
+                        ...originalData.slice(0, -1).map(() => null),
+                        originalData[originalData.length - 1][key],
+                        ...predictedData.map((item) => item[key]),
+                    ],
+                    borderColor: `rgb(${color})`,
+                    backgroundColor: `rgba(${color}, 0.2)`,
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                },
+            ]);
+        })(),
     };
 
     const chartOptions = {
@@ -297,7 +303,7 @@ const MigrationDashboard: FC = () => {
                     </Col>
                     <Col xs={24} sm={12} md={8}>
                         <div style={{ marginBottom: '16px' }}>
-                            <Text strong>Лет для прогноза:</Text>
+                            <Text strong>Количество лет для прогноза:</Text>
                             <InputNumber
                                 value={yearsToPredict}
                                 onChange={(value) => setYearsToPredict(value ?? 3)}
@@ -331,9 +337,9 @@ const MigrationDashboard: FC = () => {
                     description={
                         <>
                             <Text>
-                                Прогноз выполнен методом скользящей средней с окном в {windowSize} года. На основе
-                                последних {windowSize} значений рассчитывается среднее, которое используется для
-                                прогноза.
+                                Прогноз выполнен методом скользящей средней с окном в {windowSize}{' '}
+                                {getYearWord(windowSize)}. На основе последних {windowSize} значений рассчитывается
+                                среднее, которое используется для прогноза.
                             </Text>
                             <br />
                             <Text>
