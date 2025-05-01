@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Card, Table, Statistic, Row, Col, Select, Typography } from 'antd';
 import { Line } from 'react-chartjs-2';
@@ -61,7 +60,7 @@ const tableColumns = [
     render: (value: number) => (
       <Text style={{ color: value >= 0 ? '#52c41a' : '#ff4d4f' }}>
         {value > 0 ? '+' : ''}{value}
-      </Text>
+ </Text>
     ),
   }
 ];
@@ -89,7 +88,7 @@ const chartOptions = {
     y: {
       title: {
         display: true,
-        text: 'Про цент (%)',
+        text: 'Процент (%)',
         font: {
           size: 14
         }
@@ -117,7 +116,6 @@ const chartOptions = {
   }
 };
 
-// Вынесенные чистые функции
 const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
   return data.map((item, index) => ({
     ...item,
@@ -224,10 +222,10 @@ const BirthStatistics: React.FC = () => {
           columns={tableColumns}
           dataSource={historicalData}
           rowKey="year"
-          pagination={false}
+          pagination={{ pageSize: 5 }}
           bordered
         />
-        <Text type=" secondary" style={{ marginTop: '16px', display: 'block' }}>
+        <Text type="secondary" style={{ marginTop: '16px', display: 'block' }}>
           * Данные за последние {historicalData.length} лет
         </Text>
       </Card>
