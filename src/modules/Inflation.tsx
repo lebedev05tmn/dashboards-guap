@@ -30,11 +30,11 @@ const getYearsToPredictLabel = (yearsToPredict: number) => {
 
     switch (plural) {
         case 'one':
-            return `${yearsToPredict} год`;
+            return 'год';
         case 'few':
-            return `${yearsToPredict} года`;
+            return 'года';
         default:
-            return `${yearsToPredict} лет`;
+            return 'лет';
     }
 };
 
