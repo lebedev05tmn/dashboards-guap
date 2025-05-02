@@ -39,16 +39,49 @@ const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
 };
 
 const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
-    const lastValues = data.slice(-3).map((item) => item.percentage);
-    const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
-    const lastYear = data[data.length - 1].year;
+    if (data.length < 3) return [];
 
-    return Array.from({ length: years }, (_, i) => ({
-        year: lastYear + i + 1,
-        percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
-        change: 0,
-        isForecast: true,
-    }));
+    const n = data.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    
+    data.forEach((item, index) => {
+        const x = index;
+        const y = item.percentage;
+        sumX += x;
+        sumY += y;
+        sumXY += x * y;
+        sumX2 += x * x;
+    });
+    
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    const MAX_REASONABLE = 45; 
+    const lastValue = data[n-1].percentage;
+    
+    const stdError = Math.sqrt(data.reduce((sum, item, idx) => {
+        const predicted = intercept + slope * idx;
+        return sum + Math.pow(item.percentage - predicted, 2);
+    }, 0) / n);
+
+    return Array.from({ length: years }, (_, i) => {
+        let percentage = intercept + slope * (n + i);
+        
+        if (percentage > MAX_REASONABLE) {
+            const distanceToMax = MAX_REASONABLE - lastValue;
+            percentage = lastValue + distanceToMax * (1 - Math.exp(-0.3 * (i + 1))); // Экспоненциальное замедление
+        }
+
+        const randomVariation = (Math.random() - 0.5) * stdError * 2;
+        percentage += randomVariation;
+
+        return {
+            year: data[n-1].year + i + 1,
+            percentage: Math.min(MAX_REASONABLE, Number(percentage.toFixed(1))),
+            change: 0,
+            isForecast: true,
+        };
+    });
 };
 
 const chartOptions = {
