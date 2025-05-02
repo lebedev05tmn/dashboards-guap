@@ -30,11 +30,11 @@ const getYearsToPredictLabel = (yearsToPredict: number) => {
 
     switch (plural) {
         case 'one':
-            return `${yearsToPredict} год`;
+            return 'год';
         case 'few':
-            return `${yearsToPredict} года`;
+            return 'года';
         default:
-            return `${yearsToPredict} лет`;
+            return 'лет';
     }
 };
 
@@ -196,7 +196,7 @@ const Inflation: FC = () => {
             <Card title="Исторические данные и прогноз" style={{ marginBottom: '24px' }}>
                 <Table
                     columns={columns}
-                    dataSource={combinedData}
+                    dataSource={originalData}
                     rowKey="year"
                     pagination={{ pageSize: 10 }}
                     bordered
