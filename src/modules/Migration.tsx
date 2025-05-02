@@ -287,7 +287,11 @@ const MigrationDashboard: FC = () => {
                 </div>
             </Card>
 
-            <Card title="Параметры анализа" style={{ marginBottom: '24px' }} headStyle={{ backgroundColor: '#fafafa' }}>
+            <Card
+                title="Параметры анализа"
+                style={{ marginBottom: '24px' }}
+                styles={{ header: { backgroundColor: '#fafafa' } }}
+            >
                 <Row gutter={16}>
                     <Col xs={24} sm={12} md={8}>
                         <div style={{ marginBottom: '16px' }}>

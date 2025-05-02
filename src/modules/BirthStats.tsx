@@ -212,7 +212,11 @@ const BirthStatistics: React.FC = () => {
                 </div>
             </Card>
 
-            <Card title="Таблица данных" style={{ marginBottom: '24px' }} headStyle={{ backgroundColor: '#fafafa' }}>
+            <Card
+                title="Таблица данных"
+                style={{ marginBottom: '24px' }}
+                styles={{ header: { backgroundColor: '#fafafa' } }}
+            >
                 <Table
                     columns={tableColumns}
                     dataSource={historicalData}
@@ -225,7 +229,7 @@ const BirthStatistics: React.FC = () => {
                 </Text>
             </Card>
 
-            <Card title="Методология расчета" headStyle={{ backgroundColor: '#fafafa' }}>
+            <Card title="Методология расчета" styles={{ header: { backgroundColor: '#fafafa' } }}>
                 <Alert
                     message="Алгоритм прогнозирования"
                     description={

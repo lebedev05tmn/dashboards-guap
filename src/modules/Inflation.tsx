@@ -215,7 +215,7 @@ const Inflation: FC = () => {
             <Card
                 title="Калькулятор будущей стоимости"
                 style={{ marginBottom: '24px' }}
-                headStyle={{ backgroundColor: '#fafafa' }}
+                styles={{ header: { backgroundColor: '#fafafa' } }}
             >
                 <Row gutter={16}>
                     <Col xs={24} sm={12} md={8}>
