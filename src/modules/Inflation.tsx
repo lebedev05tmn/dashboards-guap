@@ -127,7 +127,13 @@ const Inflation: FC = () => {
             },
             {
                 label: 'Прогнозируемая инфляция',
-                data: [...originalData.map(() => null), ...predictedData.map((item) => item.inflationRate)],
+                data: [
+                    ...originalData.map((item, index) => {
+                        if (index == originalData?.length - 1) return item.inflationRate;
+                        else return null;
+                    }),
+                    ...predictedData.map((item) => item.inflationRate),
+                ],
                 borderColor: 'rgb(255, 159, 64)',
                 backgroundColor: 'rgba(255, 159, 64, 0.2)',
                 borderDash: [5, 5],
