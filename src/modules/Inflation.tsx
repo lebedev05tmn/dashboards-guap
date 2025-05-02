@@ -190,7 +190,7 @@ const Inflation: FC = () => {
             <Card title="Исторические данные и прогноз" style={{ marginBottom: '24px' }}>
                 <Table
                     columns={columns}
-                    dataSource={combinedData}
+                    dataSource={originalData}
                     rowKey="year"
                     pagination={{ pageSize: 10 }}
                     bordered
