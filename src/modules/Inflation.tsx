@@ -74,12 +74,10 @@ const Inflation: FC = () => {
         return result;
     };
 
-    // Прогнозирование на N лет вперед
     const predictFutureValues = () => {
         const windowSize = 3;
         const movingAverages = calculateMovingAverage(originalData, windowSize);
 
-        // Берем последние значения для прогноза
         const lastValues = movingAverages.slice(-windowSize);
         const avgLastValues = lastValues.reduce((sum, val) => sum + val, 0) / lastValues.length;
 
@@ -89,7 +87,7 @@ const Inflation: FC = () => {
         for (let i = 1; i <= yearsToPredict; i++) {
             predictedData.push({
                 year: lastYear + i,
-                inflationRate: avgLastValues * (1 - 0.05 * i), // Немного уменьшаем с каждым годом
+                inflationRate: avgLastValues * (1 - 0.05 * i),
                 comment: `Прогноз на основе скользящей средней`,
                 isPredicted: true,
             });
@@ -101,7 +99,6 @@ const Inflation: FC = () => {
     const predictedData = predictFutureValues();
     const combinedData = [...originalData, ...predictedData];
 
-    // Расчет будущей стоимости товара
     const calculateFuturePrice = () => {
         let futurePrice = initialPrice;
         predictedData.forEach((year) => {

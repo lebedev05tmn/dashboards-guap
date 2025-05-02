@@ -44,7 +44,6 @@ const MigrationDashboard: FC = () => {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        // Преобразуем данные из JSON в нужный формат
         const formattedData = migrationData
             .map((item) => ({
                 year: item.year,

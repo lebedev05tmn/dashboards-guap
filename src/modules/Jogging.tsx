@@ -107,7 +107,7 @@ const generateSpeedChartData = (data: JoggingData[]): ChartDataType => {
 const calculateWeekendDistance = (data: JoggingData[]): number => {
     return data.reduce((total, item) => {
         const date = new Date(item.date);
-        const day = date.getDay(); // 0 - воскресенье, 6 - суббота
+        const day = date.getDay();
         if (day === 0 || day === 6) {
             return total + item.distance;
         }

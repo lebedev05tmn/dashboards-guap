@@ -30,7 +30,6 @@ interface ProcessedData extends BirthData {
     isForecast: boolean;
 }
 
-// Чистая функция, выносим за компонент
 const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
     return data.map((item, index) => ({
         ...item,
@@ -39,7 +38,6 @@ const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
     }));
 };
 
-// Чистая функция, выносим за компонент
 const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
     const lastValues = data.slice(-3).map((item) => item.percentage);
     const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
@@ -48,12 +46,11 @@ const generateForecast = (data: ProcessedData[], years: number): ProcessedData[]
     return Array.from({ length: years }, (_, i) => ({
         year: lastYear + i + 1,
         percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
-        change: 0, // Для прогнозов изменение можно не считать или установить 0
+        change: 0,
         isForecast: true,
     }));
 };
 
-// Вынесенные константы
 const chartOptions = {
     responsive: true,
     plugins: {
@@ -154,7 +151,6 @@ const BirthStatistics: React.FC = () => {
         };
     }, [allData]);
 
-    // Максимальное и минимальное изменение среди исторических данных (без прогноза)
     const changes = historicalData.slice(1).map((item) => item.change);
     const maxChange = Math.max(...changes);
     const minChange = Math.min(...changes);
