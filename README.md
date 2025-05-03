@@ -1,55 +1,51 @@
-# React + TypeScript + Vite
+# Dashboards GUAP
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Описание проекта
 
-Currently, two official plugins are available:
+Проект "Dashboards GUAP" представляет собой веб-приложение, в виде панели задач, где расположены выполненые работы в соответствии с вариантами.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Установка и запуск
 
-## Expanding the ESLint configuration
+Для запуска проекта необходимо выполнить следующие шаги:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/lebedev05tmn/dashboards-guap.git
+   cd dashboards-guap
+   ```
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+2. Установите зависимости:
+   ```bash
+   npm install
+   ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+3. Запустите проект в режиме разработки:
+   ```bash
+   npm run dev
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+4. Откройте браузер и перейдите по адресу [http://localhost:5371](http://localhost:5371) для доступа к приложению.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
-# dashboards-guap
+## Используемые технологии
+
+- **React** - библиотека для создания пользовательских интерфейсов.
+- **TypeScript (TSX)** - язык программирования, расширяющий JavaScript с поддержкой статической типизации.
+- **Chart.js** - библиотека для визуализации данных с помощью графиков и диаграмм.
+- **Ant Design (antd)** - библиотека компонентов для React, обеспечивающая стильный и удобный интерфейс.
+- **Vite** - современный инструмент сборки для разработки приложений на JavaScript.
+- **Prettier** - инструмент для форматирования кода, который помогает поддерживать единообразный стиль.
+- **npm** - менеджер пакетов для JavaScript, используемый для установки зависимостей проекта.
+
+## Команда проекта
+
+- **Константин Лебедев** - Статистика об инфляции (10 вариант). [GitHub](https://github.com/lebedev05tmn)
+- **Григорий Буренков** - Статистика пробежок (1 вариант). [GitHub](https://github.com/skv0r)
+- **Дмитрий Пухловский** - Статистика рождаемости (17 вариант) . [GitHub](https://github.com/Qfimf)
+- **Кирилл Илюхин** - Статистика миграции (6 вариант). [GitHub](https://github.com/kosobutski)
+
+## Ссылки 
+
+- [GitHub](https://github.com/lebedev05tmn/dashboards-guap)
+- [Задание](https://drive.google.com/file/d/1fT5U5gvjW8kC20Imspfgnbzbki2scpyG/view?usp=sharing) 
+
+

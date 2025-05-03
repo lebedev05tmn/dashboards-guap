@@ -39,16 +39,49 @@ const processHistoricalData = (data: BirthData[]): ProcessedData[] => {
 };
 
 const generateForecast = (data: ProcessedData[], years: number): ProcessedData[] => {
-    const lastValues = data.slice(-3).map((item) => item.percentage);
-    const avgChange = Number(((lastValues[2] - lastValues[0]) / 2).toFixed(1));
-    const lastYear = data[data.length - 1].year;
+    if (data.length < 3) return [];
 
-    return Array.from({ length: years }, (_, i) => ({
-        year: lastYear + i + 1,
-        percentage: Number((data[data.length - 1].percentage + avgChange * (i + 1)).toFixed(1)),
-        change: 0,
-        isForecast: true,
-    }));
+    const n = data.length;
+    let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+    
+    data.forEach((item, index) => {
+        const x = index;
+        const y = item.percentage;
+        sumX += x;
+        sumY += y;
+        sumXY += x * y;
+        sumX2 += x * x;
+    });
+    
+    const slope = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+    const intercept = (sumY - slope * sumX) / n;
+
+    const MAX_REASONABLE = 45; 
+    const lastValue = data[n-1].percentage;
+    
+    const stdError = Math.sqrt(data.reduce((sum, item, idx) => {
+        const predicted = intercept + slope * idx;
+        return sum + Math.pow(item.percentage - predicted, 2);
+    }, 0) / n);
+
+    return Array.from({ length: years }, (_, i) => {
+        let percentage = intercept + slope * (n + i);
+        
+        if (percentage > MAX_REASONABLE) {
+            const distanceToMax = MAX_REASONABLE - lastValue;
+            percentage = lastValue + distanceToMax * (1 - Math.exp(-0.3 * (i + 1))); // Экспоненциальное замедление
+        }
+
+        const randomVariation = (Math.random() - 0.5) * stdError * 2;
+        percentage += randomVariation;
+
+        return {
+            year: data[n-1].year + i + 1,
+            percentage: Math.min(MAX_REASONABLE, Number(percentage.toFixed(1))),
+            change: 0,
+            isForecast: true,
+        };
+    });
 };
 
 const chartOptions = {
@@ -133,46 +166,78 @@ const BirthStatistics: React.FC = () => {
 
     const allData = useMemo(() => [...historicalData, ...forecastData], [forecastData]);
 
-    const chartOptionsWithLabel = useMemo(() => {
-        return {
-            ...chartOptions,
-            plugins: {
-                ...chartOptions.plugins,
-                tooltip: {
-                    callbacks: {
-                        label: (ctx: TooltipItem<'line'>) => {
-                            const item = allData[ctx.dataIndex];
-                            return `${ctx.dataset.label}: ${item.percentage}%${item.isForecast ? ' (прогноз)' : ''}`;
-                        },
-                    },
+    const chartOptionsWithLabel = useMemo(() => ({
+    ...chartOptions,
+    plugins: {
+        ...chartOptions.plugins,
+        tooltip: {
+            callbacks: {
+                label: (ctx: TooltipItem<'line'>) => {
+                    if (ctx.datasetIndex === 0) {
+                        return `История: ${ctx.raw}%`;
+                    } else {
+                        const year = allData[ctx.dataIndex].year;
+                        const isForecast = year > historicalData[historicalData.length - 1].year;
+                        return `Прогноз: ${ctx.raw}%${isForecast ? '' : ' (нет данных)'}`;
+                    }
                 },
-                legend: chartOptions.plugins.legend,
             },
-        };
-    }, [allData]);
+        },
+    },
+}), [allData]);
 
     const changes = historicalData.slice(1).map((item) => item.change);
     const maxChange = Math.max(...changes);
     const minChange = Math.min(...changes);
 
-    const chartData = useMemo(
-        () => ({
-            labels: allData.map((item) => item.year),
-            datasets: [
-                {
-                    label: 'Дети вне брака (%)',
-                    data: allData.map((item) => item.percentage),
-                    borderColor: '#1890ff',
-                    backgroundColor: 'rgba(24, 144, 255, 0.2)',
-                    borderWidth: 2,
-                    pointBackgroundColor: allData.map((item) => (item.isForecast ? '#ff4d4f' : '#1890ff')),
-                    tension: 0.3,
-                    fill: true,
-                },
-            ],
-        }),
-        [allData],
-    );
+    const chartData = useMemo(() => {
+    const lastHistoricalYear = historicalData[historicalData.length - 1].year;
+    
+    return {
+        labels: allData.map(item => item.year),
+        datasets: [
+            {
+                label: 'Исторические данные',
+                data: allData.map(item => item.isForecast ? null : item.percentage),
+                borderColor: '#1890ff',
+                backgroundColor: 'rgba(24, 144, 255, 0.2)',
+                borderWidth: 2,
+                tension: 0.3,
+                pointBackgroundColor: '#1890ff',
+                fill: false,
+            },
+            {
+                label: 'Прогноз',
+                data: allData.map(item => {
+                    if (item.year === lastHistoricalYear) return item.percentage;
+                    return item.isForecast ? item.percentage : null;
+                }),
+                borderColor: '#ff4d4f',
+                borderWidth: 2,
+                borderDash: [5, 5],
+                tension: 0.3,
+                pointBackgroundColor: '#ff4d4f',
+            },
+            {
+                label: 'Доверительный интервал',
+                data: allData.map(item => item.isForecast ? item.percentage * 1.05 : null),
+                backgroundColor: 'rgba(255, 77, 79, 0.1)',
+                borderColor: 'transparent',
+                borderWidth: 0,
+                pointRadius: 0,
+                fill: '-1',
+            },
+            {
+                label: 'Доверительный интервал',
+                data: allData.map(item => item.isForecast ? item.percentage * 0.95 : null),
+                backgroundColor: 'rgba(255, 77, 79, 0.1)',
+                borderColor: 'transparent',
+                borderWidth: 0,
+                pointRadius: 0,
+            }
+        ],
+    };
+}, [allData]);
 
     return (
         <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
